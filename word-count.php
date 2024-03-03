@@ -17,6 +17,46 @@ class WordCountPluginAndTime
 
         add_action('admin_menu', [$this, 'adminMenu']);
         add_action('admin_init', [$this, 'settings']);
+        add_filter('the_content', [$this, 'ifWrap']);
+    }
+
+    function ifWrap($content)
+    {
+        if (
+            (is_main_query() and is_single()) and (
+                get_option("wcp_counter", "1") or
+                get_option("wcp_character", "1") or
+                get_option("wcp_readTime", "1")
+            )
+        ) {
+            return $this->wrapContentHtml($content);
+        }
+        return $content;
+    }
+
+    function wrapContentHtml($content)
+    {
+        $html = '<h3>' . esc_html(get_option('wcp_headline', 'Post Statistics')) . '</h3><p>';
+
+        //word count and read time calculation
+        if (get_option("wcp_counter", "1") or get_option("wcp_readTime", "1")) {
+            $wordCount = str_word_count(strip_tags($content));
+        }
+
+        if (get_option("wcp_counter", "1")) {
+            $html .= " This Post has " . $wordCount . ' words.<br>';
+        }
+        if (get_option("wcp_character", "1")) {
+            $html .= " This Post has " . strlen(strip_tags($content)) . ' Characters.<br>';
+        }
+        if (get_option("wcp_readTime", "1")) {
+            $html .= " This Post will take approximately " . ceil($wordCount / 200) . ' minute.<br>';
+        }
+
+        if (get_option('wcp_location', '0') == '0') {
+            return $html . $content;
+        }
+        return $content . $html;
     }
 
     function adminMenu()
@@ -30,7 +70,7 @@ class WordCountPluginAndTime
 
         // word count location settings field
         add_settings_field('wcp_location', 'Display Location', [$this, 'locationHtml'], 'word-count', 'wcp_first_section', );
-        register_setting('word-count-settings-group', "wcp_location", ['sanitize_callback' => 'sanitize_text_field', 'default' => '']);
+        register_setting('word-count-settings-group', "wcp_location", ['sanitize_callback' => [$this, 'sanitizeTextField'], 'default' => '']);
 
         //word count headline settings field
         add_settings_field('wcp_headline', 'Display Headline', [$this, 'headerHtml'], 'word-count', 'wcp_first_section', );
@@ -49,12 +89,20 @@ class WordCountPluginAndTime
         register_setting('word-count-settings-group', "wcp_readTime", ['sanitize_callback' => 'sanitize_text_field', 'default' => '']);
     }
 
+    function sanitizeTextField($input)
+    {
+        if ($input != 0 and $input != 1) {
+            add_settings_error('wcp_location', 'wcp_location_error', 'Display Location must be 0 or 1', 'error');
+            return get_option('wcp_location');
+        }
+        return $input;
+    }
 
 
     function checkBoxHtml($args)
     {
         ?>
-        <input type="checkbox" name="<?php echo $args['the_Name']; ?>" value="1" <?php checked(get_option($args['the_Name']), 1); ?>>
+        <input type="checkbox" name="<?php echo $args['the_Name']; ?>" value=" 1" <?php checked(get_option($args['the_Name']), 1); ?>>
         <?php
     }
 
@@ -69,7 +117,7 @@ class WordCountPluginAndTime
     function locationHtml()
     {
         ?>
-        <select name="wcp_location">
+        <select name=" wcp_location">
             <option value="0" <?php selected(get_option('wcp_location'), '0') ?>>Begining of the Page</option>
             <option value="1" <?php selected(get_option('wcp_location'), '1') ?>>Ending of the Page</option>
         </select>
