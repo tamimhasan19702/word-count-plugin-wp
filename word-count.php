@@ -6,7 +6,8 @@
  * Requires at least: 5.2
  * Requires PHP:      7.2
  * Author:            Tareq Monower
- * Text Domain:       word-count
+ * Text Domain:      wcpdomain
+ * Domain Path:       /languages
  */
 
 class WordCountPluginAndTime
@@ -18,8 +19,12 @@ class WordCountPluginAndTime
         add_action('admin_menu', [$this, 'adminMenu']);
         add_action('admin_init', [$this, 'settings']);
         add_filter('the_content', [$this, 'ifWrap']);
+        add_action('init', [$this, 'languages']);
     }
-
+    function languages()
+    {
+        load_plugin_textdomain('wcpdomain', false, dirname(plugin_basename(__FILE__)) . '/languages');
+    }
     function ifWrap($content)
     {
         if (
@@ -44,13 +49,13 @@ class WordCountPluginAndTime
         }
 
         if (get_option("wcp_counter", "1")) {
-            $html .= " This Post has " . $wordCount . ' words.<br>';
+            $html .= __("This Post has", "wcpdomain") . " " . $wordCount . " " . __('words.', 'wcpdomain') . '<br>';
         }
         if (get_option("wcp_character", "1")) {
-            $html .= " This Post has " . strlen(strip_tags($content)) . ' Characters.<br>';
+            $html .= __("This Post has", "wcpdomain") . " " . strlen(strip_tags($content)) . " " . __('characters.', 'wcpdomain') . '<br>';
         }
         if (get_option("wcp_readTime", "1")) {
-            $html .= " This Post will take approximately " . ceil($wordCount / 200) . ' minute.<br>';
+            $html .= __("This Post will take", "wcpdomain") . " " . ceil($wordCount / 200) . "" . __('minute.', 'wcpdomain') . '<br>';
         }
 
         if (get_option('wcp_location', '0') == '0') {
@@ -61,7 +66,7 @@ class WordCountPluginAndTime
 
     function adminMenu()
     {
-        add_submenu_page('options-general.php', 'Word Count Settings', 'Word Count', 'manage_options', 'word-count', [$this, 'mainPage']);
+        add_submenu_page('options-general.php', 'Word Count Settings', __('Word Count Settings', 'wcpdomain'), 'manage_options', 'word-count', [$this, 'mainPage']);
     }
 
     function settings()
