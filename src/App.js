@@ -3,10 +3,12 @@
 import React from "react";
 import Widget from "./components/widget";
 
-export default function App() {
+function App() {
   return (
-    <>
+    <React.Fragment>
       <Widget />
-    </>
+    </React.Fragment>
   );
 }
+
+export default App;
