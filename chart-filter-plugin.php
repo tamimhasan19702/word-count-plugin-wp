@@ -18,8 +18,17 @@ class ChartFilterPlugin
     function __construct()
     {
         add_action("wp_dashboard_setup", [$this, "new_dashboard_setup"]);
+        add_action("admin_enqueue_scripts", [$this, "load_scripts"]);
     }
 
+    function load_scripts()
+    {
+        wp_enqueue_script("wp-react-plugin", WPWR_URL . "./src/index.js", ['jquery', 'wp-element'], "1.0.0", true);
+        wp_localize_script("wp-react-plugin", 'appLocalizer', [
+            'apiUrl' => home_url('/wp-json'),
+            'nonce' => wp_create_nonce('wp_rest'),
+        ]);
+    }
     function new_dashboard_setup()
     {
         wp_add_dashboard_widget(
@@ -31,7 +40,7 @@ class ChartFilterPlugin
 
     function new_dashboard_widget_callback()
     {
-        echo '<div id="new-dashboard-widget">Hello montu</div>';
+        echo '<div id="new-dashboard-widget"></div>';
     }
 
 }
