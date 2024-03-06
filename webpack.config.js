@@ -6,8 +6,9 @@ module.exports = {
     path: __dirname,
     filename: "./dist/bundle.js",
   },
+  mode: "development",
   module: {
-    loaders: [
+    rules: [
       {
         test: /.js$/,
         loader: "babel-loader",

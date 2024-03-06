@@ -3,10 +3,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 function Widget() {
-  const [firstname, setFirstName] = useState("");
-  const [lastname, setLastName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [loader, setLoader] = useState("Save Settings");
+  const [message, setMessage] = useState("");
 
   const url = `${appLocalizer.apiUrl}/wprk/v1/settings`;
 
@@ -17,8 +18,8 @@ function Widget() {
       .post(
         url,
         {
-          firstname: firstname,
-          lastname: lastname,
+          firstName: firstName,
+          lastName: lastName,
           email: email,
         },
         {
@@ -29,17 +30,25 @@ function Widget() {
         }
       )
       .then((res) => {
+        console.log("submitted");
         setLoader("Save Settings");
+        setFirstName("");
+        setLastName("");
+        setEmail("");
+        showSuccess();
       });
   };
 
-  useEffect(() => {
-    axios.get(url).then((res) => {
-      setFirstName(res.data.firstname);
-      setLastName(res.data.lastname);
-      setEmail(res.data.email);
-    });
-  }, []);
+  const showSuccess = () => {
+    let successMessage = document.createElement("h1");
+    successMessage.innerHTML = "Successfully saved settings!";
+    successMessage.style.color = "green";
+    document
+      .getElementById("work-settings-form")
+      .insertAdjacentElement("afterend", successMessage);
+
+    setTimeout(() => successMessage.remove(), 2000);
+  };
 
   return (
     <React.Fragment>
@@ -49,13 +58,13 @@ function Widget() {
           <tbody>
             <tr>
               <th scope="row">
-                <label htmlFor="firstname">Firstname</label>
+                <label htmlFor="firstName">FirstName</label>
               </th>
               <td>
                 <input
-                  id="firstname"
-                  name="firstname"
-                  value={firstname}
+                  id="firstName"
+                  name="firstName"
+                  value={firstName}
                   onChange={(e) => {
                     setFirstName(e.target.value);
                   }}
@@ -65,13 +74,13 @@ function Widget() {
             </tr>
             <tr>
               <th scope="row">
-                <label htmlFor="lastname">Lastname</label>
+                <label htmlFor="lastName">LastName</label>
               </th>
               <td>
                 <input
-                  id="lastname"
-                  name="lastname"
-                  value={lastname}
+                  id="lastName"
+                  name="lastName"
+                  value={lastName}
                   onChange={(e) => {
                     setLastName(e.target.value);
                   }}
