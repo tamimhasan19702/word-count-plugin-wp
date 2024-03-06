@@ -7,7 +7,6 @@ function Widget() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [loader, setLoader] = useState("Save Settings");
-  const [message, setMessage] = useState("");
 
   const url = `${appLocalizer.apiUrl}/wprk/v1/settings`;
 
