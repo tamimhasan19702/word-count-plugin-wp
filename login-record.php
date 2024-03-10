@@ -109,7 +109,7 @@ class WPRK_Create_Admin_Page
 
     public function save_settings_permission()
     {
-        return current_user_can('publish_posts')
+        return current_user_can('publish_posts');
     }
 }
 
