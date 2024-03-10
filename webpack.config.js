@@ -6,18 +6,17 @@ module.exports = {
     path: __dirname,
     filename: "./dist/bundle.js",
   },
+  mode: "development",
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
-        use: {
-          loader: "babel-loader",
-          options: {
-            presets: ["@babel/preset-env", "@babel/preset-react"],
-            plugins: ["@babel/plugin-proposal-class-properties"],
-          },
-        },
+        test: /.js$/,
+        loader: "babel-loader",
         exclude: /node_modules/,
+        options: {
+          presets: [["env", "react"]],
+          plugins: ["transform-class-properties"],
+        },
       },
     ],
   },
