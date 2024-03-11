@@ -37,7 +37,16 @@ class Base
     //initialise the base
     public static function base_init()
     {
+
         add_action('admin_menu', ["Base", "add_menu_page_option"]);
+
+        add_action('admin_init', array('Base', 'process_settings_form'));
+
+        add_action('admin_enqueue_scripts', array('Base', 'enqueue_js_scripts'));
+
+        add_action('admin_enqueue_scripts', array('Base', 'enqueue_css_files'));
+
+        add_filter('user_row_actions', array('Base', 'add_single_user_log_profile_link'), 10, 2);
     }
 
     //plugin activation
@@ -91,7 +100,27 @@ class Base
         }
     }
 
-    // all the init functions are below
+    public static function enqueue_js_scripts()
+    {
+        // load scripts only in plugin main page.
+        if (isset($_GET['page']) && $_GET['page'] == 'log-record-page') {
+
+            $summary_data = self::get_summary_data();
+
+            $plugin_dir_path = plugin_dir_url(dirname(__FILE__));
+            // load google charts library from local.
+            wp_enqueue_script('google_charts_local', $plugin_dir_path . 'js/googlecharts.min.js', array(), true);
+
+            // load custom charts js.
+            wp_enqueue_script('charts_js', $plugin_dir_path . 'js/drawcharts.js', array(), true);
+
+            // pass summary data to charts.js.
+            wp_localize_script('charts_js', 'summary_data', $summary_data);
+        }
+    }
+    //enque scripts
+
+    //all the init functions are below
     function add_menu_page_option()
     {
         $parent_slug = 'log-record-page';

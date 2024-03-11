@@ -34,4 +34,4 @@ require_once(LOGIN_RECORD_FILE_DIR . 'class/action.php');
 
 //plugin initiation
 add_action('init', ['Base', 'base_init']);
-add_action('init', ['Action', 'action_init']);
+// add_action('init', ['Action', 'action_init']);
