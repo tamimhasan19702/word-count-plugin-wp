@@ -41,7 +41,55 @@ class Base
     }
 
     //plugin activation
+    public static function plugin_activation()
+    {
+        global $wpdb;
+        $charset_collate = $wpdb->get_charset_collate();
 
+        //creating table for logging every session
+        $table_name = $wpdb->prefix . self::$sessions_table_name;
+        $query = "CREATE TABLE" . $table_name . "(
+        id BIGINT(11) NOT NULL AUTO_INCREMENT,
+        user_id BIGINT(11) NOT NULL Default 0,
+        user_name TEXT NOT NULL DEFAULT '',
+        user_email TEXT NOT NULL DEFAULT '',
+        user_role TEXT NOT NULL DEFAULT '',
+        last_session DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+        PRIMARY KEY (id)
+        )" . $charset_collate . ";";
+        require_once(ABSPATH . "wp-admin/includes/upgrade.php");
+        dbDelta($query);
+
+        //Creating table for log actions
+        $table_name = $wpdb->prefix . self::$sessions_action_table_name;
+        $query = "CREATE TABLE" . $table_name . "(
+        id BIGINT(11) NOT NULL AUTO_INCREMENT,
+        user_id BIGINT(11) NOT NULL Default 0,
+        action TEXT NOT NULL DEFAULT '',
+        date_time DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+        PRIMARY KEY (id)
+        )" . $charset_collate . ";";
+        dbDelta($query);
+
+        //highlight one or several roles
+        $featured_roles = get_option('log_featured_roles');
+        if (!$featured_roles) {
+            update_option('log_featured_roles', ['']);
+        }
+        ;
+
+        //display metabox with extra info on the dashboard
+        $display_dashboard_metabox = get_option("log_display_dashboard_metabox");
+        if (!$display_dashboard_metabox) {
+            update_option("log_display_dashboard_metabox", "yes");
+        }
+
+        //enable and disable email nortification
+        $send_admin_email_nortification = get_option("log_send_admin_email_nortification");
+        if (!$send_admin_email_nortification) {
+            update_option("log_send_admin_email_nortification", "no");
+        }
+    }
 
     // all the init functions are below
     function add_menu_page_option()
