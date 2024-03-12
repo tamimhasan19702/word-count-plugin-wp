@@ -118,42 +118,68 @@ class Base
             wp_localize_script('charts_js', 'summary_data', $summary_data);
         }
     }
-    //enque scripts
+
+    public static function enqueue_css_files()
+    {
+
+        $plugin_dir_path = plugin_dir_url(dirname(__FILE__));
+        wp_enqueue_style('log-records-css', $plugin_dir_path . 'css/style.css');
+    }
 
     //all the init functions are below
-    function add_menu_page_option()
+    public static function add_menu_page_option()
     {
         $parent_slug = 'log-record-page';
 
-        //main menu page
+        // main menu page
         add_menu_page(
             'Log Record',
             'Log Record',
             'administrator',
             $parent_slug,
-            ['Base', 'display_main_page'],
-            'dashicons-desktop',
+            array('Base', 'display_main_page'),
+            'dashicons-desktop'
         );
 
         // submenu settings page
         add_submenu_page(
             $parent_slug,
-            "Settings",
-            "Settings",
-            "administrator",
-            "log_settings",
-            ['Base', 'display_settings_page']
+            'Settings',
+            'Settings',
+            'administrator',
+            'log-settings',
+            array('Base', 'display_settings_page')
         );
 
-        // submenu single user page
+        // submenu settings page
         add_submenu_page(
             $parent_slug,
-            "Single User Page",
-            "Single User Page",
-            "administrator",
-            "log_single_user_page",
-            ['Base', 'display_single_user_page']
+            'Single User Page',
+            'Single User Page',
+            'administrator',
+            'log-single-user-page',
+            array('Base', 'display_single_user_page')
         );
+    }
+
+    public static function display_main_page()
+    {
+        require_once(plugin_dir_path(dirname(__FILE__)) . 'views/main-page.php');
+    }
+
+    public static function display_listing_users_page()
+    {
+        require_once(plugin_dir_path(dirname(__FILE__)) . 'views/user-listing-page.php');
+    }
+
+    public static function display_settings_page()
+    {
+        require_once(plugin_dir_path(dirname(__FILE__)) . 'views/settings-page.php');
+    }
+
+    public static function display_single_user_page()
+    {
+        require_once(plugin_dir_path(dirname(__FILE__)) . 'views/single-user-page.php');
     }
 
 }
