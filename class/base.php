@@ -182,4 +182,110 @@ class Base
         require_once(plugin_dir_path(dirname(__FILE__)) . 'views/single-user-page.php');
     }
 
+    public static function process_settings_form()
+    {
+        if (!isset($_POST['log_form']) || $_POST['log_form'] !== 'settings') {
+            return;
+        }
+
+        if (!isset($_POST['log_nonce']) || empty($_POST['log_nonce']) || !wp_verify_nonce($_POST['log_nonce'], 'log_settings_form')) {
+            // get user notification data.
+            $not_data = array(
+                'status' => 'invalid-nonce',
+            );
+            //redirect user to settings form.
+            self::redirect_user('settings', $not_data);
+        }
+
+        // featured administrators.
+        if (isset($_POST['log_roles']) && is_array($_POST['log_roles']) || !empty($_POST['log_roles'])) {
+            update_option('log_featured_roles', serialize($_POST['log_roles']));
+        }
+
+        // display metabox
+        if (isset($_POST['log_display_metabox']) && !empty($_POST['log_display_metabox'])) {
+            update_option('log_display_dashboard_metabox', sanitize_text_field($_POST['log_display_metabox']));
+        }
+
+        // send admin notification.
+        if (isset($_POST['log_send_admin_notification']) && !empty($_POST['log_send_admin_notification'])) {
+            update_option('log_send_admin_email_notification', sanitize_text_field($_POST['log_send_admin_notification']));
+        }
+
+        $not_data = array(
+            'status' => 'settings-updated',
+        );
+        self::redirect_user('settings', $not_data);
+    }
+
+    public static function redirect_user($location, $not_data = array())
+    {
+        // set page redirection.
+        switch ($location) {
+            case 'main':
+                $path = 'admin.php?page=log-record-page';
+                break;
+            case 'settings':
+                $path = 'admin.php?page=log-settings';
+                break;
+            default:
+                $path = 'admin.php?page=log-record-page';
+                break;
+        }
+        $base_url = get_admin_url(null, $path);
+
+        // add user notification data.
+        if (is_array($not_data) && !empty($not_data)) {
+            $base_url = add_query_arg($not_data, $base_url);
+        }
+
+        wp_safe_redirect($base_url);
+        exit;
+    }
+
+    public static function get_summary_data()
+    {
+        global $wpdb;
+        $table_name = $wpdb->prefix . self::$sessions_table_name;
+        $data = array();
+        $current_roles = get_editable_roles();
+        $i = 0;
+        $total = count($current_roles);
+
+        // get total users data and number of users by role.
+        $data['user_data'] = count_users();
+
+        // get total logins.
+        $query = "SELECT COUNT(*) FROM " . $table_name;
+        $data['total_logins'] = (int) $wpdb->get_var($query);
+
+        // get logins by role.
+        $query = "SELECT";
+        foreach ($current_roles as $key => $role) {
+            $query .= " ( SELECT COUNT(*) FROM " . $table_name . " 
+                        WHERE user_role = '" . sanitize_text_field($key) . "' ) 
+                        AS '" . $key . "'";
+            $i++;
+            if ($i < $total) {
+                $query .= ',';
+            }
+        }
+        $data['logins_per_role'] = $wpdb->get_row($query);
+        return $data;
+    }
+
+    public static function add_single_user_log_profile_link($actions, $user_object)
+    {
+        if (current_user_can('administrator')) {
+            $admin_url = get_admin_url() . 'admin.php';
+            $args = [
+                'page' => 'log-single-user-page',
+                'user-id' => $user_object->ID,
+            ];
+            $admin_url = add_query_arg($args, $admin_url);
+            $actions['view_log_profile'] = "<a href='" . esc_url($admin_url) . "' class='log-wpusers-link'>Log profile</a>";
+        }
+        return $actions;
+    }
+
 }
