@@ -6,6 +6,6 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>Add New</h1>
+    <h1 >Add New</h1>
 </body>
 </html>

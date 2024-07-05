@@ -26,4 +26,37 @@ function wp_custom_plugin_callback() {
     include_once(WP_CUSTOM_PLUGIN_DIR . 'views/add-new.php');
 }
 
+function wp_custom_plugin_enqueue() {
+    wp_enqueue_style('custom-plugin', WP_CUSTOM_PLUGIN_URL . '/assets/css/style.css', [], "1.0", 'all');
+    wp_enqueue_script('custom-plugin', WP_CUSTOM_PLUGIN_URL . '/assets/js/index.js', [], "1.0", true);
+}
+
+function wp_custom_plugin_create_table() {
+    global $wpdb;
+    
+
+    // Define table name with the correct prefix
+    $table_name = $wpdb->prefix . 'custom_plugin_table';
+
+    if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+
+$charset_collete = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE `wp_custom_plugin` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `name` varchar(255) NOT NULL,
+            `email` varchar(255) NOT NULL,
+            `address` varchar(255) NOT NULL,
+            PRIMARY KEY (`id`)
+          ) $charset_collete";
+
+require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+           dbDelta($sql);
+    }
+
+    
+}
+
 add_action('admin_menu', 'wp_custom_plugin');
+add_action('admin_enqueue_scripts', 'wp_custom_plugin_enqueue');
+register_activation_hook(__FILE__, "wp_custom_plugin_create_table");
