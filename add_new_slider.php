@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Add New Slider</title>
 </head>
 <body>
-    <h1>All Page</h1>
+    <h1>Add New Slider</h1>
 </body>
 </html>
